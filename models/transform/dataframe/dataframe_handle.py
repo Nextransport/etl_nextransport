@@ -35,6 +35,10 @@ class DataframeHandle():
                 cd_equipto = self.get_node_text(childs, ["b:Equipamento", "b:Codigo"])
                 if cd_equipto is not None:
                     cols = DataframeDefine.columns["flow_abastecida_equipamento"]
+                else:
+                    cols = DataframeDefine.columns["flow_abastecida_cavalo"]
+            else:
+                cols = DataframeDefine.columns[flow_name]
 
             if dt_emissao is None or dt_emissao >= pd.to_datetime(offset_date):
                 df = pd.DataFrame(columns=list(cols))

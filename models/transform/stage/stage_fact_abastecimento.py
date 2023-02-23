@@ -42,10 +42,20 @@ class StageFactAbastecimento(Stage, FactAbastecimento):
         Stage.insert_stg_data(self, client_id, dataframe)
         self.exec_triggers()
 
-    # def exec_triggers(self):
-    #     schema = os.environ["db_schema_stage"]
-    #     try:
-    #         self.exec_sql(f"select {schema}.")
+    def exec_triggers(self):
+        schema = os.environ["db_schema_stage"]
+        offset_days = os.environ["offset_days"]
+        try:
+            self.exec_sql(f"select {schema}.update_nrprecotabela_full({offset_days});")
+            print(f"Function {schema}.update_nrprecotabela_full executada com sucesso!")
+        except Exception as e:
+            print(f"Nao foi possivel executar a function update_nrprecotabela_full: {e}")
+
+        try:
+            self.exec_sql(f"select {schema}.update_kmrodado_full({offset_days});")
+            print(f"Function {schema}.update_kmrodado_full executada com sucesso!")
+        except Exception as e:
+            print(f"Nao foi possivel executar a function update_kmrodado_full: {e}")
 
     def select_registers_by_viagem(self, cd_viagem):
         df_handle = DataframeHandle()
