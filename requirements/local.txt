@@ -1,0 +1,15 @@
+pandas
+
+psycopg2
+
+psycopg2-binary
+
+python-dotenv
+
+requests
+
+display
+
+pandas-scd2['postgresql']
+
+sqlalchemy

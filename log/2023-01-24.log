@@ -1,0 +1,9 @@
+ERROR:sqlalchemy.pool.impl.QueuePool:Exception during reset or similar
+Traceback (most recent call last):
+  File "C:\Users\evert\PycharmProjects\etl_nextransport\venv\lib\site-packages\sqlalchemy\pool\base.py", line 763, in _finalize_fairy
+    fairy._reset(pool, transaction_was_reset)
+  File "C:\Users\evert\PycharmProjects\etl_nextransport\venv\lib\site-packages\sqlalchemy\pool\base.py", line 1038, in _reset
+    pool._dialect.do_rollback(self)
+  File "C:\Users\evert\PycharmProjects\etl_nextransport\venv\lib\site-packages\sqlalchemy\engine\default.py", line 683, in do_rollback
+    dbapi_connection.rollback()
+KeyboardInterrupt
