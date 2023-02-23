@@ -7,9 +7,10 @@ from dotenv import load_dotenv
 import os
 import logging
 
-logging.basicConfig(filename=f'./log/{date.today()}.log', encoding='utf-8', level=logging.INFO)
-
 load_dotenv()
+
+logging.basicConfig(filename=f'{os.environ["base_dir"]}\log\{date.today()}.log', encoding='utf-8', level=logging.INFO)
+
 
 class RequestViagem(Request):
 

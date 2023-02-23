@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from datetime import datetime
 
@@ -14,7 +15,7 @@ from models.transform.dataframe.dataframe_storage import DataframeStorage
 def init():
     client_id = 1
     df_st = DataframeStorage()
-
+    print("Offset days:", os.environ["offset_days"])
     extract(df_st)
     dim_load(df_st, client_id)
     fct_load(df_st, client_id)

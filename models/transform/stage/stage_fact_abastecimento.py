@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 
 from .stage import Stage
@@ -38,6 +40,12 @@ class StageFactAbastecimento(Stage, FactAbastecimento):
 
         dataframe = dataframe[self.stage_cols]
         Stage.insert_stg_data(self, client_id, dataframe)
+        self.exec_triggers()
+
+    # def exec_triggers(self):
+    #     schema = os.environ["db_schema_stage"]
+    #     try:
+    #         self.exec_sql(f"select {schema}.")
 
     def select_registers_by_viagem(self, cd_viagem):
         df_handle = DataframeHandle()

@@ -1,0 +1,1 @@
+python C:\Users\Administrator\PycharmProjects\etl_nextransport\main.py
