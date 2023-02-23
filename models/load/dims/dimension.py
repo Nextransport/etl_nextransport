@@ -198,7 +198,7 @@ class Dimension(Table):
                 value = "null" if data[index2] is None or pd.isna(data[index2]) else data[index2]
                 query += f"{value}, " if value == "null" else f"'{value}', "
 
-            query += f"{client_id}, '{timestamp}', '2199-12-31 23:59:59'), "
+            query += f"{client_id}, '2022-01-01 00:00:00', '2199-12-31 23:59:59'), "
 
         query = query[:-2]
         query += ";"
@@ -253,8 +253,3 @@ class Dimension(Table):
         query += f"nr_versao = {version}"
 
         return query
-
-    def check_scd(self):
-
-        if self.scd is False:
-            self.truncate_table_after_offset()

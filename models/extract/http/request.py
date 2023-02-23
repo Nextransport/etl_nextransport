@@ -151,7 +151,7 @@ class Request:
 
             len_df_before = len(dataframe_results)
             df = df_handle.proccess_data_xml(node_list, date_nodename, offset_date, flow_name)
-            print('Min data:', df[date_colname].min())
+            # print('Min data:', df[date_colname].min())
             dataframe_results = pd.concat([dataframe_results, df])
             len_df_after = len(dataframe_results)
 

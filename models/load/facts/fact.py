@@ -81,10 +81,9 @@ class Fact(Table):
         query = self.create_query_insert(dataframe)
 
         try:
-            with self.engine.connect() as connection:
-                self.truncate_table_after_offset()
-                connection.execute(query)
-                print(f"{len(dataframe)} registros inseridos na tabela {self.table_name}.")
+            self.truncate_table_after_offset()
+            self.exec_sql(query)
+            print(f"{len(dataframe)} registros inseridos na tabela {self.table_name}.")
         except Exception as e:
             print(f"Erro ao inserir registros em {self.table_name}: {e}")
             exit()

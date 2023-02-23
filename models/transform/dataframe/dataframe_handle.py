@@ -23,7 +23,7 @@ class DataframeHandle():
 
     def proccess_data_xml(self, node_list, date_nodename, offset_date, flow_name):
         cols = DataframeDefine.columns[flow_name]
-        prefix_id = ""
+        cd_equipto = None
         dataframe_results = pd.DataFrame(columns=list(cols))
 
         for node in node_list:
@@ -40,21 +40,19 @@ class DataframeHandle():
                 df = pd.DataFrame(columns=list(cols))
 
                 for index in list(cols):
+                    prefix = ""
+                    if cols[index] is not None:
+                        prefix = cols[index][0]
+                        if "prefix:" in prefix:
+                            prefix = prefix.split(":")[1]
 
                     if "dt_" not in index:
 
-                        if index != "cd_veiculo":
-                            prefix_id = ""
-                        elif cd_equipto is not None:
-                            prefix_id = "E"
-                        else:
-                            prefix_id = "C"
-
                         if isinstance(cols[index], str):
-                            df.at[0, index] = prefix_id + cols[index]
+                            df.at[0, index] = cols[index]
                         else:
                             value = self.get_node_text(childs, cols[index])
-                            df.at[0, index] = prefix_id + value if value is not None else value
+                            df.at[0, index] = prefix + value if value is not None else value
                     else:
                         try:
                             dt = pd.to_datetime(self.get_node_date(childs, cols[index]))

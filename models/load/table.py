@@ -37,9 +37,8 @@ class Table:
             txt_success += f" a partir de {offset_date}"
 
         try:
-            with self.engine.connect() as connection:
-                connection.execute(query)
-                print(txt_success)
+            self.exec_sql(query)
+            print(txt_success)
         except Exception as e:
             print(f"Nao foi possivel truncar a tabela {self.table_name}: {e}")
             exit()

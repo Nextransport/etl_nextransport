@@ -33,10 +33,9 @@ class Stage(Table):
         query += ", cd_cliente, dt_criacao) values"
 
         for index in dataframe.index:
-            if index > 3:
-                break
             data = dataframe.loc[index]
             query += "("
+
             for val in data:
                 value = "null" if val is None else val
                 query += f"{value}, " if isinstance(value, int) or isinstance(value,

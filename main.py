@@ -42,10 +42,16 @@ def dim_load(df_st, client_id):
     # df_st.stg_dim_manutencao.insert_update_data(client_id=client_id, dataframe=df_st.df_manutencao)
 
 def fct_load(df_st, client_id):
+
+    df_st.stg_fact_abastecimento.truncate_table_after_offset()
     df_st.stg_fact_abastecimento.insert_stg_data(client_id=client_id, dataframe=df_st.df_abastecimento)
+
+    # df_st.stg_fact_viagem.truncate_table_after_offset()
     # df_st.stg_fact_viagem.insert_stg_data(client_id=client_id, dataframe=df_st.df_viagem[df_st.stg_fact_viagem.stage_cols])
     # df_st.stg_fact_manutencao.insert_stg_data(client_id=client_id, dataframe=df_st.df_manutencao[df_st.stg_fact_manutencao.stage_cols])
     # df_st.stg_fact_faturamento.insert_stg_data(client_id=client_id, dataframe=df_st.df_faturamento[df_st.stg_fact_faturamento.stage_cols])
+
+    # df_st.stg_fact_tabelapreco.truncate_table_after_offset()
     # df_st.stg_fact_tabelapreco.insert_stg_data(client_id=client_id, dataframe=df_st.df_tabelapreco[df_st.stg_fact_tabelapreco.stage_cols])
 
 def request_abastecimento(df_st):
