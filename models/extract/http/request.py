@@ -216,8 +216,9 @@ class Request:
         print(f"Buscando carga {load_id}/{order_id}.")
         node_list = self.get_response_xml_by_tag_name(tag_name=nodelist_name, fl_viagem=True, load_id=load_id, order_id=order_id)
         df = df_handle.proccess_data_xml(node_list, None, self.offset_date, flow_name)
+        df_cargas = df_handle.proccess_data_xml(node_list, None, self.offset_date, "flow_pedido_frete")
 
-        return df
+        return [df, df_cargas]
 
     def get_node_text(self, node_list, node_names):
         return self.xml_handle.search_node_data(node_list, node_names)

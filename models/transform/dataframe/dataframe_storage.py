@@ -19,12 +19,14 @@ from models.transform.stage.stage_dim_produto import StageDimProduto
 from models.transform.stage.stage_dim_relacionado import StageDimRelacionado
 from models.transform.stage.stage_dim_veiculo import StageDimVeiculo
 from models.transform.stage.stage_dim_viagem import StageDimViagem
+from models.transform.stage.stage_dim_pedidofrete import StageDimPedidoFrete
 
 from models.transform.stage.stage_fact_abastecimento import StageFactAbastecimento
 from models.transform.stage.stage_fact_faturamento import StageFactFaturamento
 from models.transform.stage.stage_fact_manutencao import StageFactManutencao
 from models.transform.stage.stage_fact_tabelapreco import StageFactTabelaPreco
 from models.transform.stage.stage_fact_viagem import StageFactViagem
+from models.transform.stage.stage_fact_pedidofrete import StageFactPedidoFrete
 
 class DataframeStorage:
 
@@ -37,6 +39,7 @@ class DataframeStorage:
     df_tabelapreco = pd.DataFrame()
     df_veiculo = pd.DataFrame()
     df_viagem = pd.DataFrame()
+    df_pedidofrete = pd.DataFrame()
 
     dim_motorista = DimMotorista()
     dim_produto = DimProduto()
@@ -48,10 +51,12 @@ class DataframeStorage:
     stg_dim_veiculo = StageDimVeiculo()
     stg_dim_viagem = StageDimViagem()
     stg_dim_manutencao = StageDimManutencao()
+    stg_dim_pedidofrete = StageDimPedidoFrete()
 
     stg_fact_abastecimento = StageFactAbastecimento()
     stg_fact_faturamento = StageFactFaturamento()
     stg_fact_manutencao = StageFactManutencao()
     stg_fact_tabelapreco = StageFactTabelaPreco()
     stg_fact_viagem = StageFactViagem()
+    stg_fact_pedidofrete = StageFactPedidoFrete()
 

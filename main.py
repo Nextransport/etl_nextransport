@@ -23,33 +23,45 @@ def init():
     # transform(df_st)
 
 def extract(df_st):
-    request_abastecimento(df_st)
-    # request_viagem(df_st)
+    # request_abastecimento(df_st)
+    request_viagem(df_st)
     # request_faturamento(df_st)
     # request_manutencao(df_st)
     # request_tabelapreco(df_st)
 
 def dim_load(df_st, client_id):
-    print("Carregando informações em stg_dim_produto")
-    df_st.stg_dim_produto.insert_update_data(client_id=client_id, dataframe=df_st.df_produto, unique_cols=["cd_produto"])
+    # print("Carregando informações em stg_dim_produto")
+    # df_st.stg_dim_produto.insert_update_data(client_id=client_id, dataframe=df_st.df_produto, unique_cols=["cd_produto"])
+
     print("Carregando informações em stg_dim_relacionado")
     df_st.stg_dim_relacionado.insert_update_data(client_id=client_id, dataframe=df_st.df_relacionado, unique_cols=["cd_relacionado"])
+
     print("Carregando informações em stg_dim_veiculo")
     df_st.stg_dim_veiculo.insert_update_data(client_id=client_id, dataframe=df_st.df_veiculo, unique_cols=["ds_placa"])
+
+    print("Carregando informações em stg_dim_pedidofrete")
+    df_st.stg_dim_pedidofrete.insert_update_data(client_id=client_id, dataframe=df_st.df_pedidofrete, unique_cols=["cd_pedidofrete"])
+
+    print("Carregando informações em stg_dim_viagem")
+    df_st.stg_dim_viagem.insert_update_data(client_id=client_id, dataframe=df_st.df_viagem)
+
     # print("Carregando informações em stg_dim_motorista")
     # df_st.stg_dim_motorista.insert_update_data(client_id=client_id, dataframe=df_st.df_motorista, unique_cols=["ds_cpf"])
-    # print("Carregando informações em stg_dim_viagem")
-    # df_st.stg_dim_viagem.insert_update_data(client_id=client_id, dataframe=df_st.df_viagem)
+
     # print("Carregando informações em stg_dim_manutencao")
     # df_st.stg_dim_manutencao.insert_update_data(client_id=client_id, dataframe=df_st.df_manutencao)
 
 def fct_load(df_st, client_id):
 
-    df_st.stg_fact_abastecimento.truncate_table_after_offset()
-    df_st.stg_fact_abastecimento.insert_stg_data(client_id=client_id, dataframe=df_st.df_abastecimento)
+    # df_st.stg_fact_abastecimento.truncate_table_after_offset()
+    # df_st.stg_fact_abastecimento.insert_stg_data(client_id=client_id, dataframe=df_st.df_abastecimento)
 
-    # df_st.stg_fact_viagem.truncate_table_after_offset()
-    # df_st.stg_fact_viagem.insert_stg_data(client_id=client_id, dataframe=df_st.df_viagem[df_st.stg_fact_viagem.stage_cols])
+    df_st.stg_fact_viagem.truncate_table_after_offset()
+    df_st.stg_fact_viagem.insert_stg_data(client_id=client_id, dataframe=df_st.df_viagem[df_st.stg_fact_viagem.stage_cols])
+
+    df_st.stg_fact_viagem.truncate_table_after_offset()
+    df_st.stg_fact_viagem.insert_stg_data(client_id=client_id, dataframe=df_st.df_pedidofrete[df_st.stg_fact_pedidofrete.stage_cols])
+
     # df_st.stg_fact_manutencao.insert_stg_data(client_id=client_id, dataframe=df_st.df_manutencao[df_st.stg_fact_manutencao.stage_cols])
     # df_st.stg_fact_faturamento.insert_stg_data(client_id=client_id, dataframe=df_st.df_faturamento[df_st.stg_fact_faturamento.stage_cols])
 
@@ -75,19 +87,28 @@ def request_abastecimento(df_st):
 def request_viagem(df_st):
 
     request = RequestViagem()
-    df_via = request.get_dataframe_viagem()
+    df_viagem_pedido = request.get_dataframe_viagem()
+    df_viagem = df_viagem_pedido[0]
+    df_pedido = df_viagem_pedido[1]
 
-    if len(df_via) > 0:
-        df_motorista = df_via[df_st.stg_dim_motorista.flow_columns]
+    if len(df_viagem) > 0:
+        df_motorista = df_viagem[df_st.stg_dim_motorista.flow_columns]
         df_st.df_motorista = pd.concat([df_st.df_motorista, df_motorista.rename(columns=df_st.stg_dim_motorista.exchange_columns)])
 
-        df_st.df_veiculo = pd.concat([df_st.df_veiculo, df_via[df_st.stg_dim_veiculo.stage_cols]])
+        df_st.df_veiculo = pd.concat([df_st.df_veiculo, df_viagem[df_st.stg_dim_veiculo.stage_cols]])
 
-        df_reboque = df_via[df_st.stg_dim_veiculo.exchange_columns.keys()]
+        df_reboque = df_viagem[df_st.stg_dim_veiculo.exchange_columns.keys()]
         df_st.df_veiculo = pd.concat([df_st.df_veiculo, df_reboque.rename(columns=df_st.stg_dim_veiculo.exchange_columns)])
 
-        df_via = df_via.rename(columns={"cd_veiculoreboque": "cd_reboque"})
+        df_via = df_viagem.rename(columns={"cd_veiculoreboque": "cd_reboque"})
         df_st.df_viagem = pd.concat([df_st.df_viagem, df_via[df_st.stg_fact_viagem.stage_cols]])
+
+    if len(df_pedido) > 0:
+
+        df_pedido["cd_pedidofrete"] = df_pedido["cd_carga"] + "-" + df_pedido["cd_pedido"]
+        df_st.df_relacionado = pd.concat([df_st.df_relacionado, df_pedido[df_st.stg_dim_relacionado.stage_cols]])
+        df_st.df_pedidofrete = pd.concat([df_st.df_pedidofrete, df_pedido[df_st.stg_fact_pedidofrete.stage_cols]])
+
 
 def request_faturamento(df_st):
     request = RequestFaturamento()

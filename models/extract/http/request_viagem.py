@@ -37,7 +37,8 @@ class RequestViagem(Request):
 
     def get_dataframe_viagem(self):
 
-        df_acum = pd.DataFrame()
+        df_via_acum = pd.DataFrame()
+        df_carga_acum = pd.DataFrame()
         req_carga = RequestCarga()
 
         min_date = datetime.today()
@@ -52,22 +53,24 @@ class RequestViagem(Request):
         while ((min_date >= offset_date and count <= max_requests) or escape_requests > 0) and count < 3:
 
             df_cargas = req_carga.get_dataframe_carga()
-            df = self.get_dataframe_single_viagem(df_cargas)
-            df_acum = pd.concat([df_acum, df])
+            list_viagem_carga = self.get_dataframe_single_viagem(df_cargas)
+            df_via_acum = pd.concat([df_via_acum, list_viagem_carga[0]])
+            df_carga_acum = pd.concat([df_carga_acum, list_viagem_carga[1]])
 
-            if len(df_acum) > 0:
-                min_date = self.check_mindate_dataframe(min_date, df)
+            if len(df_via_acum) > 0:
+                min_date = self.check_mindate_dataframe(min_date, list_viagem_carga[0])
 
                 if min_date < offset_date:
                     escape_requests -= 1
 
-            # count += 1
 
-        df_acum = self.filter_by_date(df_acum, "dt_final", offset_date)
-        df_acum = self.df_handle.order_dataframe_by_column(df_acum, ["cd_viagem", "dt_final"])
-        df_acum = self.df_handle.reindex_dataframe(dataframe=df_acum, list_columns_consider=["cd_viagem"])
+        df_carga_acum = self.filter_by_date(dataframe=df_carga_acum, colname="dt_emissao", date=offset_date)
 
-        return df_acum
+        df_via_acum = self.filter_by_date(df_via_acum, "dt_final", offset_date)
+        df_via_acum = self.df_handle.order_dataframe_by_column(dataframe=df_via_acum, column_name=["cd_viagem", "dt_final"])
+        df_via_acum = self.df_handle.reindex_dataframe(dataframe=df_via_acum, list_columns_consider=["cd_viagem"])
+
+        return [df_via_acum, df_carga_acum]
 
     def filter_by_date(self, dataframe, colname, date):
         dataframe[colname] = pd.to_datetime(dataframe[colname], format='%Y-%m-%d')
@@ -77,20 +80,22 @@ class RequestViagem(Request):
 
     def get_dataframe_single_viagem(self, df_cargas):
         df = pd.DataFrame()
+        df_pedido = pd.DataFrame()
         for index in df_cargas.index:
             load_id = df_cargas['cd_carga'].iloc[index]
             order_id = df_cargas['cd_pedido'].iloc[index]
-            df2 = self.get_dataframe_w2params(
+            list_viagem_carga = self.get_dataframe_w2params(
                 nodelist_name="b:CargaIntegracao",
                 flow_name="flow_viagem",
                 load_id=load_id,
                 order_id=order_id
             )
-            df = pd.concat([df, df2])
+            df = pd.concat([df, list_viagem_carga[0]])
+            df_pedido = pd.concat([df_pedido, list_viagem_carga[1]])
         if len(df) > 0:
             where = df["dt_final"].notnull()
             df = df[where]
-        return df
+        return [df, df_pedido]
 
     def check_mindate_dataframe(self, min_date, df):
 
