@@ -13,7 +13,7 @@ class RequestAbastecimento(Request):
             ['tem', 'http://tempuri.org/']
         )
         self.set_qtd_registros()
-        self.set_asc_limits()
+        self.set_desc_limits()
         self.set_limit_dates()
 
 

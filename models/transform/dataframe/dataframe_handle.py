@@ -21,9 +21,8 @@ class DataframeHandle():
         except IndexError:
             return False
 
-    def proccess_data_xml(self, node_list, date_nodename, offset_date, flow_name):
+    def proccess_data_xml(self, node_list, date_nodename, offset_date, limit_date, flow_name):
         cols = DataframeDefine.columns[flow_name]
-        cd_equipto = None
         dataframe_results = pd.DataFrame(columns=list(cols))
 
         for node in node_list:
@@ -40,7 +39,8 @@ class DataframeHandle():
             else:
                 cols = DataframeDefine.columns[flow_name]
 
-            if dt_emissao is None or dt_emissao >= pd.to_datetime(offset_date):
+            # print(pd.to_datetime(offset_date), pd.to_datetime(limit_date), dt_emissao)
+            if dt_emissao is None or (pd.to_datetime(offset_date) <= dt_emissao <= pd.to_datetime(limit_date)):
                 df = pd.DataFrame(columns=list(cols))
 
                 for index in list(cols):

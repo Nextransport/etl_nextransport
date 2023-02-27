@@ -40,7 +40,7 @@ class StageFactAbastecimento(Stage, FactAbastecimento):
 
         dataframe = dataframe[self.stage_cols]
         Stage.insert_stg_data(self, client_id, dataframe)
-        self.exec_triggers()
+        # self.exec_triggers()
 
     def exec_triggers(self):
         schema = os.environ["db_schema_stage"]

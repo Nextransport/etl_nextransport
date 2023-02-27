@@ -27,6 +27,7 @@ class Request:
     offset_date = 0
     today_date = 0
     limit = 0
+    limit_date = 0
     dataframe_results = 0
     limit_type = "ASC"
 
@@ -34,6 +35,8 @@ class Request:
         self.today_date = date.today()
         self.offset_days = timedelta(int(os.environ["offset_days"]))
         self.offset_date = self.today_date - self.offset_days
+        # self.offset_date = pd.to_datetime(os.environ["offset_date"])
+        self.limit_date = pd.to_datetime(os.environ["limit_date"])
 
     def set_headers_request(self):
         self.wsdl = os.environ["wsdl"] + self.endpoint + '.svc'
@@ -53,10 +56,15 @@ class Request:
     def set_asc_limits(self):
         self.offset = int(os.environ[f"Offset_{self.action}"])
         self.limit = int(os.environ[f"Limit_{self.action}"])
+        self.limit_type = "ASC"
 
     def set_desc_limits(self):
         self.offset = self.qtd_registros - int(os.environ[f"Limit_{self.action}"])
         self.limit = int(os.environ[f"Limit_{self.action}"])
+        self.limit_type = "DESC"
+
+    def get_offset_date(self):
+        return self.offset_date
     def post_request(self):
         try:
             print(f"Buscando registros em '{self.action}': de {self.offset} a {self.limit+self.offset}...")
@@ -136,9 +144,9 @@ class Request:
         max_requests = int(os.environ["max_requests"])
         dataframe_results = pd.DataFrame()
 
-        min_date = datetime.today()
-        offset_days = timedelta(int(os.environ["offset_days"]))
-        offset_date = min_date - offset_days
+        self.set_limit_dates()
+        self.offset = 46500
+
         count = 0
         df_handle = DataframeHandle()
 
@@ -150,8 +158,9 @@ class Request:
                 self.reset_offset_condition()
 
             len_df_before = len(dataframe_results)
-            df = df_handle.proccess_data_xml(node_list, date_nodename, offset_date, flow_name)
+            df = df_handle.proccess_data_xml(node_list, date_nodename, self.offset_date, self.limit_date, flow_name)
             # print('Min data:', df[date_colname].min())
+            print('Max data:', df[date_colname].max())
             dataframe_results = pd.concat([dataframe_results, df])
             len_df_after = len(dataframe_results)
 
@@ -196,9 +205,10 @@ class Request:
         dataframe_results = pd.DataFrame()
 
         while self.offset >= 0 and fl_escape > 0 and count <= max_requests:
+
             node_list = self.get_response_xml_by_tag_name(tag_name=nodelist_name)
             len_df_before = len(self.dataframe_results.index)
-            dataframe_results = df_handle.proccess_data_xml(node_list, None, self.offset_date, flow_name)
+            dataframe_results = df_handle.proccess_data_xml(node_list, None, self.offset_date, self.limit_date, flow_name)
             len_df_after = len(self.dataframe_results.index)
 
             if (len_df_after - len_df_before) == 0:
@@ -211,13 +221,13 @@ class Request:
         return dataframe_results
 
     def get_dataframe_w2params(self, nodelist_name, flow_name, load_id, order_id):
-
+        self.set_limit_dates()
         df_handle = DataframeHandle()
-        print(f"Buscando carga {load_id}/{order_id}.")
+        # print(f"Buscando carga {load_id}/{order_id}")
         node_list = self.get_response_xml_by_tag_name(tag_name=nodelist_name, fl_viagem=True, load_id=load_id, order_id=order_id)
-        df = df_handle.proccess_data_xml(node_list, None, self.offset_date, flow_name)
-        df_cargas = df_handle.proccess_data_xml(node_list, None, self.offset_date, "flow_pedido_frete")
-
+        df = df_handle.proccess_data_xml(node_list, None, self.offset_date, self.limit_date, flow_name)
+        df_cargas = df_handle.proccess_data_xml(node_list, None, self.offset_date, self.limit_date, "flow_pedido_frete")
+        print(f"Buscando carga {load_id}/{order_id} dt_ini_viagem: {df['dt_inicial'][0]} dt_pedido: {df_cargas['dt_emissao'][0]}")
         return [df, df_cargas]
 
     def get_node_text(self, node_list, node_names):

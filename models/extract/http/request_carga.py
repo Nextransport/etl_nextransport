@@ -21,7 +21,6 @@ class RequestCarga(Request):
         self.set_qtd_registros()
         self.set_desc_limits()
         self.set_limit_dates()
-        self.limit_type = "DESC"
 
 
     def get_dataframe_carga(self):

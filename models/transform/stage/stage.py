@@ -34,6 +34,7 @@ class Stage(Table):
 
         for index in dataframe.index:
             data = dataframe.loc[index]
+
             query += "("
 
             for val in data:

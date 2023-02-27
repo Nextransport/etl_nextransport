@@ -16,3 +16,13 @@ class StageFactPedidoFrete(Stage, FactPedidoFrete):
         ]
         Stage.__init__(self)
         FactPedidoFrete.__init__(self)
+
+    def insert_stg_data(self, client_id, dataframe):
+        dataframe.reset_index(inplace=True, drop=True)
+
+        for index in dataframe.index:
+            data = dataframe.loc[index]
+            if data["cd_viagem"] == "0":
+                dataframe.at[index, "cd_viagem"] = "null"
+
+        Stage.insert_stg_data(self, client_id, dataframe)

@@ -12,8 +12,7 @@ load_dotenv()
 logging.basicConfig(filename=f'{os.environ["base_dir"]}\log\{date.today()}.log', encoding='utf-8', level=logging.INFO)
 
 
-class RequestViagem(Request):
-
+class RequestPedidoFrete(Request):
     def __init__(self):
 
         self.dataframe_results = pd.DataFrame()
@@ -35,76 +34,77 @@ class RequestViagem(Request):
         self.set_limit_dates()
 
 
-    def get_dataframe_viagem(self):
+    def get_dataframe_pedidofrete(self):
 
-        df_via_acum = pd.DataFrame()
-        df_carga_acum = pd.DataFrame()
+        df_pedidosfrete = pd.DataFrame()
         req_carga = RequestCarga()
 
-        min_date = datetime.today()
-        offset_days = timedelta(int(os.environ["offset_days"]))
-        offset_date = min_date - offset_days
-
+        offset_date = pd.to_datetime(self.get_offset_date())
         max_requests = int(os.environ["max_requests"])
         escape_requests = int(os.environ["escape_requests"])
-        req_carga.set_desc_limits()
 
-        count = 0
-        while ((min_date >= offset_date and count <= max_requests) or escape_requests > 0) and count < 3:
+        while escape_requests > 0 and max_requests > 0:
+            df_num_pedidofrete = req_carga.get_dataframe_carga()
+            df_pedidofrete = self.get_dataframe_single_viagem(df_num_pedidofrete)
+            df_pedidosfrete = pd.concat([df_pedidosfrete, df_pedidofrete])
 
-            df_cargas = req_carga.get_dataframe_carga()
-            list_viagem_carga = self.get_dataframe_single_viagem(df_cargas)
-            df_via_acum = pd.concat([df_via_acum, list_viagem_carga[0]])
-            df_carga_acum = pd.concat([df_carga_acum, list_viagem_carga[1]])
-
-            if len(df_via_acum) > 0:
-                min_date = self.check_mindate_dataframe(min_date, list_viagem_carga[0])
-
+            if len(df_pedidosfrete) > 0:
+                min_date = self.check_mindate_dataframe(offset_date, df_pedidofrete)
                 if min_date < offset_date:
+                    print(f"min_date: {min_date}")
                     escape_requests -= 1
+            max_requests -= 1
 
+        df_viagem = df_pedidofrete.drop_duplicates(subset=["cd_viagem"]).copy()
+        df_viagem.dropna(subset=["cd_viagem"], inplace=True)
+        df_viagem.rename(columns={"cd_veiculoreboque": "cd_reboque"}, inplace=True)
+        filter1 = df_viagem["cd_viagem"] != "0"
+        filter2 = df_viagem["dt_final"] >= offset_date
+        df_viagem.where(filter1 & filter2, inplace=True)
 
-        df_carga_acum = self.filter_by_date(dataframe=df_carga_acum, colname="dt_emissao", date=offset_date)
+        filter = df_pedidosfrete["dt_emissao"] >= offset_date
+        df_pedidosfrete.where(filter, inplace=True)
 
-        df_via_acum = self.filter_by_date(df_via_acum, "dt_final", offset_date)
-        df_via_acum = self.df_handle.order_dataframe_by_column(dataframe=df_via_acum, column_name=["cd_viagem", "dt_final"])
-        df_via_acum = self.df_handle.reindex_dataframe(dataframe=df_via_acum, list_columns_consider=["cd_viagem"])
-
-        return [df_via_acum, df_carga_acum]
+        return [df_pedidosfrete, df_viagem]
 
     def filter_by_date(self, dataframe, colname, date):
         dataframe[colname] = pd.to_datetime(dataframe[colname], format='%Y-%m-%d')
         dataframe = dataframe.loc[(dataframe[colname] >= date)]
-
         return dataframe
 
     def get_dataframe_single_viagem(self, df_cargas):
-        df = pd.DataFrame()
-        df_pedido = pd.DataFrame()
+        df_pedidofrete = pd.DataFrame()
         for index in df_cargas.index:
             load_id = df_cargas['cd_carga'].iloc[index]
             order_id = df_cargas['cd_pedido'].iloc[index]
             list_viagem_carga = self.get_dataframe_w2params(
                 nodelist_name="b:CargaIntegracao",
-                flow_name="flow_viagem",
+                flow_name="flow_pedido_frete",
                 load_id=load_id,
                 order_id=order_id
             )
-            df = pd.concat([df, list_viagem_carga[0]])
-            df_pedido = pd.concat([df_pedido, list_viagem_carga[1]])
-        if len(df) > 0:
-            where = df["dt_final"].notnull()
-            df = df[where]
-        return [df, df_pedido]
+            df_pedidofrete = pd.concat([df_pedidofrete, list_viagem_carga[0]])
+
+        return df_pedidofrete
 
     def check_mindate_dataframe(self, min_date, df):
 
         filter_df = self.df_handle.reindex_dataframe(df)
-        min_date_df = filter_df["dt_final"].min()
+        min_date_df = filter_df["dt_emissao"].min()
 
         if pd.notna(min_date_df):
             return min_date_df
         else:
             return min_date
+
+    def check_maxdate_dataframe(self, max_date, df):
+
+        filter_df = self.df_handle.reindex_dataframe(df)
+        max_date_df = filter_df["dt_final"].max()
+
+        if pd.notna(max_date_df):
+            return max_date_df
+        else:
+            return max_date
 
 
