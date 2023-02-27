@@ -67,7 +67,9 @@ class Request:
         return self.offset_date
     def post_request(self):
         try:
+            print("-------------------------------------------")
             print(f"Buscando registros em '{self.action}': de {self.offset} a {self.limit+self.offset}...")
+            print("-------------------------------------------")
             self.body = self.xml_handle.create_xml_request(self.token, self.namespaces, self.action, self.offset, self.limit)
             response = requests.request("POST", url=self.wsdl, headers=self.headers, data=self.body)
             response_txt = re.sub(r'&#([a-zA-Z0-9]+);?', "", response.content.decode("utf-8"))
