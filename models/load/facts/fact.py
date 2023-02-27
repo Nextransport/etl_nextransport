@@ -60,6 +60,7 @@ class Fact(Table):
         for index1 in dataframe.index:
             data = dataframe.iloc[index1].copy()
             query += "("
+            print(data)
             for index2 in data.index:
                 if data[index2] is None or pd.isna(data[index2]):
                     value = "null"

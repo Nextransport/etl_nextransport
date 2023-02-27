@@ -2,6 +2,7 @@ from ...load.table import Table
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
+import pandas as pd
 
 load_dotenv()
 
@@ -38,9 +39,11 @@ class Stage(Table):
             query += "("
 
             for val in data:
-                value = "null" if val is None else val
-                query += f"{value}, " if isinstance(value, int) or isinstance(value,
-                                                                              float) or value == "null" else f"'{value}', "
+                if val is None or pd.isna(val):
+                    value = "null"
+                else:
+                    value = val
+                query += f"{value}, " if isinstance(value, int) or isinstance(value, float) or value == "null" else f"'{value}', "
             query += f"{client_id}, '{timestamp}'), "
 
         query = query[:-2]

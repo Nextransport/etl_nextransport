@@ -2,6 +2,7 @@ from .request import Request
 from .request_carga import RequestCarga
 from models.transform.dataframe.dataframe_handle import DataframeHandle
 import pandas as pd
+import numpy as np
 from datetime import date, datetime, timedelta
 from dotenv import load_dotenv
 import os
@@ -33,7 +34,6 @@ class RequestPedidoFrete(Request):
         self.set_headers_request()
         self.set_limit_dates()
 
-
     def get_dataframe_pedidofrete(self):
 
         df_pedidosfrete = pd.DataFrame()
@@ -62,8 +62,8 @@ class RequestPedidoFrete(Request):
         filter2 = df_viagem["dt_final"] >= offset_date
         df_viagem.where(filter1 & filter2, inplace=True)
 
-        filter = df_pedidosfrete["dt_emissao"] >= offset_date
-        df_pedidosfrete.where(filter, inplace=True)
+        filter1 = df_pedidosfrete["dt_emissao"] >= offset_date
+        df_pedidosfrete.where(filter1, inplace=True)
 
         return [df_pedidosfrete, df_viagem]
 
@@ -106,5 +106,3 @@ class RequestPedidoFrete(Request):
             return max_date_df
         else:
             return max_date
-
-
