@@ -40,6 +40,7 @@ class RequestPedidoFrete(Request):
         req_carga = RequestCarga()
 
         offset_date = pd.to_datetime(self.get_offset_date())
+        limit_date = pd.to_datetime(os.environ["limit_date"])
         max_requests = int(os.environ["max_requests"])
         escape_requests = int(os.environ["escape_requests"])
 
@@ -59,11 +60,12 @@ class RequestPedidoFrete(Request):
         df_viagem.dropna(subset=["cd_viagem"], inplace=True)
         df_viagem.rename(columns={"cd_veiculoreboque": "cd_reboque"}, inplace=True)
         filter1 = df_viagem["cd_viagem"] != "0"
-        filter2 = df_viagem["dt_final"] >= offset_date
-        df_viagem.where(filter1 & filter2, inplace=True)
+        # filter2 = df_viagem["dt_final"] >= offset_date
+        df_viagem.where(filter1, inplace=True)
 
         filter1 = df_pedidosfrete["dt_emissao"] >= offset_date
-        df_pedidosfrete.where(filter1, inplace=True)
+        filter2 = df_pedidosfrete["dt_emissao"] <= limit_date
+        df_pedidosfrete.where(filter1 & filter2, inplace=True)
 
         return [df_pedidosfrete, df_viagem]
 

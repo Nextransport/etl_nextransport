@@ -21,7 +21,7 @@ class RequestCarga(Request):
         self.set_qtd_registros()
         self.set_desc_limits()
         self.set_limit_dates()
-
+        # self.offset = 48335
 
     def get_dataframe_carga(self):
 
