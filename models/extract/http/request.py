@@ -227,10 +227,10 @@ class Request:
         df_handle = DataframeHandle()
         # print(f"Buscando carga {load_id}/{order_id}")
         node_list = self.get_response_xml_by_tag_name(tag_name=nodelist_name, fl_viagem=True, load_id=load_id, order_id=order_id)
-        df = df_handle.proccess_data_xml(node_list, None, self.offset_date, self.limit_date, flow_name)
-        df_cargas = df_handle.proccess_data_xml(node_list, None, self.offset_date, self.limit_date, "flow_pedido_frete")
-        print(f"Buscando carga {load_id}/{order_id} dt_ini_viagem: {df['dt_inicial'][0]} dt_pedido: {df_cargas['dt_emissao'][0]}")
-        return [df, df_cargas]
+        df_pedidofrete = df_handle.proccess_data_xml(node_list, "dt_emissao", self.offset_date, self.limit_date, flow_name)
+        print(f"Buscando carga {load_id}/{order_id} dt_ini_viagem: {df_pedidofrete['dt_inicial'][0]} dt_pedido: {df_pedidofrete['dt_emissao'][0]}")
+
+        return df_pedidofrete
 
     def get_node_text(self, node_list, node_names):
         return self.xml_handle.search_node_data(node_list, node_names)
