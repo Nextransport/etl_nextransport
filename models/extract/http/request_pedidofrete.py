@@ -70,8 +70,9 @@ class RequestPedidoFrete(Request):
         # filter1 = df_viagem["dt_final"] >= offset_date
         # df_viagem.where(filter1, inplace=True)
 
-        # df_viagem.dropna(subset=["cd_viagem"], inplace=True)
+        df_viagem.dropna(subset=["cd_viagem"], inplace=True)
         df_viagem.rename(columns={"cd_veiculoreboque": "cd_reboque"}, inplace=True)
+        df_viagem.reset_index(inplace=True, drop=True)
 
         return df_viagem
 

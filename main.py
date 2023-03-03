@@ -23,11 +23,11 @@ def init():
     # transform(df_st)
 
 def extract(df_st):
-    # request_abastecimento(df_st)
+    request_abastecimento(df_st)
     request_pedidofrete(df_st)
-    # request_faturamento(df_st)
-    # request_manutencao(df_st)
-    # request_tabelapreco(df_st)
+    request_faturamento(df_st)
+    request_manutencao(df_st)
+    request_tabelapreco(df_st)
 
 def dim_load(df_st, client_id):
     # print("Carregando informações em stg_dim_produto")
@@ -45,16 +45,16 @@ def dim_load(df_st, client_id):
     print("Carregando informações em stg_dim_viagem")
     df_st.stg_dim_viagem.insert_update_data(client_id=client_id, dataframe=df_st.df_viagem)
 
-    # print("Carregando informações em stg_dim_motorista")
-    # df_st.stg_dim_motorista.insert_update_data(client_id=client_id, dataframe=df_st.df_motorista, unique_cols=["ds_cpf"])
+    print("Carregando informações em stg_dim_motorista")
+    df_st.stg_dim_motorista.insert_update_data(client_id=client_id, dataframe=df_st.df_motorista, unique_cols=["ds_cpf"])
 
-    # print("Carregando informações em stg_dim_manutencao")
-    # df_st.stg_dim_manutencao.insert_update_data(client_id=client_id, dataframe=df_st.df_manutencao)
+    print("Carregando informações em stg_dim_manutencao")
+    df_st.stg_dim_manutencao.insert_update_data(client_id=client_id, dataframe=df_st.df_manutencao)
 
 def fct_load(df_st, client_id):
 
-    # df_st.stg_fact_abastecimento.truncate_table_after_offset()
-    # df_st.stg_fact_abastecimento.insert_stg_data(client_id=client_id, dataframe=df_st.df_abastecimento)
+    df_st.stg_fact_abastecimento.truncate_table_after_offset()
+    df_st.stg_fact_abastecimento.insert_stg_data(client_id=client_id, dataframe=df_st.df_abastecimento)
 
     df_st.stg_fact_viagem.truncate_table_after_offset()
     df_st.stg_fact_viagem.insert_stg_data(client_id=client_id, dataframe=df_st.df_viagem[df_st.stg_fact_viagem.stage_cols])
@@ -62,11 +62,11 @@ def fct_load(df_st, client_id):
     df_st.stg_fact_pedidofrete.truncate_table_after_offset()
     df_st.stg_fact_pedidofrete.insert_stg_data(client_id=client_id, dataframe=df_st.df_pedidofrete[df_st.stg_fact_pedidofrete.stage_cols])
 
-    # df_st.stg_fact_manutencao.insert_stg_data(client_id=client_id, dataframe=df_st.df_manutencao[df_st.stg_fact_manutencao.stage_cols])
-    # df_st.stg_fact_faturamento.insert_stg_data(client_id=client_id, dataframe=df_st.df_faturamento[df_st.stg_fact_faturamento.stage_cols])
+    df_st.stg_fact_manutencao.insert_stg_data(client_id=client_id, dataframe=df_st.df_manutencao[df_st.stg_fact_manutencao.stage_cols])
+    df_st.stg_fact_faturamento.insert_stg_data(client_id=client_id, dataframe=df_st.df_faturamento[df_st.stg_fact_faturamento.stage_cols])
 
-    # df_st.stg_fact_tabelapreco.truncate_table_after_offset()
-    # df_st.stg_fact_tabelapreco.insert_stg_data(client_id=client_id, dataframe=df_st.df_tabelapreco[df_st.stg_fact_tabelapreco.stage_cols])
+    df_st.stg_fact_tabelapreco.truncate_table_after_offset()
+    df_st.stg_fact_tabelapreco.insert_stg_data(client_id=client_id, dataframe=df_st.df_tabelapreco[df_st.stg_fact_tabelapreco.stage_cols])
 
 def request_abastecimento(df_st):
     request = RequestAbastecimento()
@@ -106,6 +106,8 @@ def request_pedidofrete(df_st):
         df_st.df_pedidofrete = pd.concat([df_st.df_pedidofrete, df_pedidofrete])
 
         df_st.df_viagem = pd.concat([df_st.df_viagem, df_viagem[df_st.stg_fact_viagem.stage_cols]])
+        df_st.df_viagem.drop_duplicates(inplace=True)
+
 
 def request_faturamento(df_st):
     request = RequestFaturamento()

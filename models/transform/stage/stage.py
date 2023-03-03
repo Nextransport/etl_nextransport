@@ -48,8 +48,7 @@ class Stage(Table):
 
         query = query[:-2]
         query += ";"
-        print(query)
-        exit()
+
         return str(query)
 
 

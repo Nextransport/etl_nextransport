@@ -177,8 +177,8 @@ class Dimension(Table):
     def create_insert_query(self, dataframe, client_id, unique_cols=None):
 
         timestamp = datetime.now()
-        df = self.create_dataframe_for_insert(dataframe=dataframe, client_id=client_id, unique_cols=unique_cols)
-
+        # df = self.create_dataframe_for_insert(dataframe=dataframe, client_id=client_id, unique_cols=unique_cols)
+        df = dataframe.reset_index(drop=True)
         if len(df) == 0:
             return ""
 
@@ -186,7 +186,8 @@ class Dimension(Table):
 
         for col in dataframe.columns:
             query += f"{col}, "
-        query += f"nr_versao, cd_cliente, dt_criacao, dt_atualizacao) values "
+        query = query[:-2]
+        query += ") values "
 
         for index1 in df.index:
 
@@ -198,7 +199,8 @@ class Dimension(Table):
                 value = "null" if data[index2] is None or pd.isna(data[index2]) else data[index2]
                 query += f"{value}, " if value == "null" else f"'{value}', "
 
-            query += f"{client_id}, '2022-01-01 00:00:00', '2199-12-31 23:59:59'), "
+            query = query[:-2]
+            query += "), "
 
         query = query[:-2]
         query += ";"
