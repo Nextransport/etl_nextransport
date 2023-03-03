@@ -62,13 +62,15 @@ class RequestPedidoFrete(Request):
         return [df_pedidosfrete, df_viagem]
 
     def filter_df_viagem(self, df_pedidofrete, offset_date, limit_date):
-        df_viagem = df_pedidofrete.drop_duplicates(subset=["cd_viagem"]).copy()
+        df_viagem = df_pedidofrete.copy()
 
         filter1 = df_viagem["cd_viagem"] != "0"
         df_viagem.where(filter1, inplace=True)
-        filter1 = df_viagem["dt_final"] >= offset_date
-        df_viagem.where(filter1, inplace=True)
-        df_viagem.dropna(subset=["cd_viagem"], inplace=True)
+
+        # filter1 = df_viagem["dt_final"] >= offset_date
+        # df_viagem.where(filter1, inplace=True)
+
+        # df_viagem.dropna(subset=["cd_viagem"], inplace=True)
         df_viagem.rename(columns={"cd_veiculoreboque": "cd_reboque"}, inplace=True)
 
         return df_viagem
