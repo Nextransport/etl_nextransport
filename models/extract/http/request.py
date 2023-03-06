@@ -147,7 +147,6 @@ class Request:
         dataframe_results = pd.DataFrame()
 
         self.set_limit_dates()
-        self.offset = 46500
 
         count = 0
         df_handle = DataframeHandle()
@@ -162,7 +161,7 @@ class Request:
             len_df_before = len(dataframe_results)
             df = df_handle.proccess_data_xml(node_list, date_nodename, self.offset_date, self.limit_date, flow_name)
             # print('Min data:', df[date_colname].min())
-            print('Max data:', df[date_colname].max())
+            # print('Max data:', df[date_colname].max())
             dataframe_results = pd.concat([dataframe_results, df])
             len_df_after = len(dataframe_results)
 
