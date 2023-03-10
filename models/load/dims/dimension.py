@@ -187,7 +187,7 @@ class Dimension(Table):
         for col in dataframe.columns:
             query += f"{col}, "
         query = query[:-2]
-        query += ") values "
+        query += ", cd_cliente) values "
 
         for index1 in df.index:
 
@@ -200,7 +200,7 @@ class Dimension(Table):
                 query += f"{value}, " if value == "null" else f"'{value}', "
 
             query = query[:-2]
-            query += "), "
+            query += "1), "
 
         query = query[:-2]
         query += ";"

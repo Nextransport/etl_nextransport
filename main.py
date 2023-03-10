@@ -29,6 +29,7 @@ def init():
     logging.info(f"Final: {ts.strftime('%H:%M:%S')}")
 
 def extract(df_st):
+
     request_abastecimento(df_st)
     request_pedidofrete(df_st)
     request_faturamento(df_st)

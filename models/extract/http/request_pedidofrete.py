@@ -55,7 +55,7 @@ class RequestPedidoFrete(Request):
                     escape_requests -= 1
             max_requests -= 1
 
-        df_viagem = self.filter_df_viagem(df_pedidofrete, offset_date, limit_date)
+        df_viagem = self.filter_df_viagem(df_pedidosfrete, offset_date, limit_date)
 
         df_pedidosfrete = df_pedidosfrete[(df_pedidosfrete.dt_emissao >= offset_date) & (df_pedidosfrete.dt_emissao <= limit_date)]
 
